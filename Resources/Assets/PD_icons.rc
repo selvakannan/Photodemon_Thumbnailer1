@@ -1,0 +1,14 @@
+#define RT_MANIFEST 24
+
+// Icon for the main application
+AAA				ICON		pd_icons_new.ico
+
+// Manifest
+1				RT_MANIFEST	PhotoDemon.exe.manifest
+
+// Essential resources follow
+// (These are things that PD requires for a successful run - this does *not* include stuff like translation files,
+//  which are "nice to have" but not "essential".)
+
+//Core resource collection (UI icons, themes, etc)
+MAINRES			CUSTOM		Core_Icons.pdrc
