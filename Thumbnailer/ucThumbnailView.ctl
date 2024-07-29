@@ -88,7 +88,7 @@ Private Type BITMAPINFOHEADER
     biClrImportant  As Long
 End Type
 
-Private Declare Function StretchDIBits Lib "gdi32" (ByVal hDc As Long, ByVal x As Long, ByVal y As Long, ByVal dx As Long, ByVal dy As Long, ByVal srcX As Long, ByVal srcY As Long, ByVal wSrcWidth As Long, ByVal wSrcHeight As Long, lpBits As Any, lpBitsInfo As Any, ByVal wUsage As Long, ByVal dwRop As Long) As Long
+Private Declare Function StretchDIBits Lib "gdi32" (ByVal hDC As Long, ByVal x As Long, ByVal y As Long, ByVal dx As Long, ByVal dy As Long, ByVal srcX As Long, ByVal srcY As Long, ByVal wSrcWidth As Long, ByVal wSrcHeight As Long, lpBits As Any, lpBitsInfo As Any, ByVal wUsage As Long, ByVal dwRop As Long) As Long
 
 '//
 
@@ -113,7 +113,7 @@ Private Const LOGPIXELSY             As Long = 90
 Private Const FW_NORMAL              As Long = 400
 Private Const FW_BOLD                As Long = 700
 
-Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hDc As Long, ByVal nIndex As Long) As Long
+Private Declare Function GetDeviceCaps Lib "gdi32" (ByVal hDC As Long, ByVal nIndex As Long) As Long
 Private Declare Function CreateFontIndirect Lib "gdi32" Alias "CreateFontIndirectA" (lpLogFont As LOGFONT) As Long
 Private Declare Function MulDiv Lib "kernel32" (ByVal nNumber As Long, ByVal nNumerator As Long, ByVal nDenominator As Long) As Long
 Private Declare Function DeleteObject Lib "gdi32" (ByVal hObject As Long) As Long
@@ -154,9 +154,9 @@ Private Const BDR_SUNKENOUTER As Long = &H2
 Private Const BDR_RAISEDINNER As Long = &H4
 Private Const BF_RECT         As Long = &HF
 
-Private Declare Function DrawEdge Lib "user32" (ByVal hDc As Long, qrc As RECT2, ByVal edge As Long, ByVal grfFlags As Long) As Long
-Private Declare Function FillRect Lib "user32" (ByVal hDc As Long, lpRect As RECT2, ByVal hBrush As Long) As Long
-Private Declare Function DrawFocusRect Lib "user32" (ByVal hDc As Long, lpRect As RECT2) As Long
+Private Declare Function DrawEdge Lib "user32" (ByVal hDC As Long, qrc As RECT2, ByVal edge As Long, ByVal grfFlags As Long) As Long
+Private Declare Function FillRect Lib "user32" (ByVal hDC As Long, lpRect As RECT2, ByVal hBrush As Long) As Long
+Private Declare Function DrawFocusRect Lib "user32" (ByVal hDC As Long, lpRect As RECT2) As Long
 Private Declare Function InflateRect Lib "user32" (lpRect As RECT2, ByVal x As Long, ByVal y As Long) As Long
 
 '//
@@ -169,8 +169,8 @@ Private Const DT_END_ELLIPSIS As Long = &H8000&
 Private Const DT_custom1      As Long = DT_CENTER Or DT_NOCLIP Or DT_END_ELLIPSIS
 Private Const DT_custom2      As Long = DT_CENTER Or DT_VCENTER Or DT_SINGLELINE Or DT_NOCLIP
 
-Private Declare Function DrawText Lib "user32" Alias "DrawTextA" (ByVal hDc As Long, ByVal lpStr As String, ByVal nCount As Long, lpRect As RECT2, ByVal wFormat As Long) As Long
-Private Declare Function SetTextColor Lib "gdi32" (ByVal hDc As Long, ByVal crColor As Long) As Long
+Private Declare Function DrawText Lib "user32" Alias "DrawTextA" (ByVal hDC As Long, ByVal lpStr As String, ByVal nCount As Long, lpRect As RECT2, ByVal wFormat As Long) As Long
+Private Declare Function SetTextColor Lib "gdi32" (ByVal hDC As Long, ByVal crColor As Long) As Long
 
 '= Window general =======================================================================
 
@@ -454,7 +454,7 @@ Private Const LVIR_ICON            As Long = 1
 Private Type NMCUSTOMDRAW
     hdr         As NMHDR
     dwDrawStage As Long
-    hDc         As Long
+    hDC         As Long
     rc          As RECT2
     dwItemSpec  As Long
     uItemState  As Long
@@ -810,9 +810,6 @@ Private Sub UserControl_Initialize()
 End Sub
 
 
-Private Sub UserControl_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
-   'RaiseEvent MouseUp(Button, Shift, x, y)
-End Sub
 
 
 Private Sub UserControl_Terminate()
@@ -1482,7 +1479,7 @@ Private Sub pvSetFont(oFont As StdFont)
             .lfFaceName(lChar - 1) = CByte(Asc(Mid$(oFont.Name, lChar, 1)))
         Next lChar
         
-        .lfHeight = -MulDiv(oFont.Size, GetDeviceCaps(UserControl.hDc, LOGPIXELSY), 72)
+        .lfHeight = -MulDiv(oFont.Size, GetDeviceCaps(UserControl.hDC, LOGPIXELSY), 72)
         .lfItalic = oFont.Italic
         .lfWeight = IIf(oFont.Bold, FW_BOLD, FW_NORMAL)
         .lfUnderline = oFont.Underline
@@ -1763,7 +1760,7 @@ Private Function pvCustomDrawThumbnail(ByVal lParam As Long) As Long
                         
                     '-- Extratc item paint info
                     lPrm = uNMLVCD.nmcd.lItemlParam
-                    lhDC = uNMLVCD.nmcd.hDc
+                    lhDC = uNMLVCD.nmcd.hDC
                     bSelected = (Me.ItemFindState(lItm - 1, [tvSelected]) = lItm)
                     bHasFocus = (uNMLVCD.nmcd.uItemState And CDIS_FOCUS)
                     
@@ -1979,7 +1976,7 @@ Private Function Subclass_Start(ByVal lng_hWnd As Long) As Long
 'Returns;
 '   The sc_aSubData() index
 
-  Dim I                        As Long                       'Loop index
+  Dim i                        As Long                       'Loop index
   Dim j                        As Long                       'Loop index
   Dim nSubIdx                  As Long                       'Subclass data index
   Dim sSubCode                 As String                     'Subclass code string
@@ -2011,11 +2008,11 @@ Private Function Subclass_Start(ByVal lng_hWnd As Long) As Long
                    Hex$(&HA4 + (PUB_CLASSES * 12)) & "070000C3"
     
         'Convert the string from hex pairs to bytes and store in the machine code buffer
-        I = 1
+        i = 1
         Do While j < CODE_LEN
             j = j + 1
-            sc_aBuf(j) = CByte("&H" & Mid$(sSubCode, I, 2))                       'Convert a pair of hex characters to an eight-bit value and store in the static code buffer array
-            I = I + 2
+            sc_aBuf(j) = CByte("&H" & Mid$(sSubCode, i, 2))                       'Convert a pair of hex characters to an eight-bit value and store in the static code buffer array
+            i = i + 2
         Loop                                                                      'Next pair of hex characters
     
         'Get API function addresses
@@ -2047,7 +2044,7 @@ Private Function Subclass_Start(ByVal lng_hWnd As Long) As Long
     With sc_aSubData(nSubIdx)
         
         .nAddrSub = GlobalAlloc(GMEM_FIXED, CODE_LEN)                             'Allocate memory for the machine code WndProc
-        Call VirtualProtect(ByVal .nAddrSub, CODE_LEN, PAGE_EXECUTE_READWRITE, I) 'Mark memory as executable
+        Call VirtualProtect(ByVal .nAddrSub, CODE_LEN, PAGE_EXECUTE_READWRITE, i) 'Mark memory as executable
         Call RtlMoveMemory(ByVal .nAddrSub, sc_aBuf(1), CODE_LEN)                 'Copy the machine code from the static byte array to the code array in sc_aSubData
     
         .hWnd = lng_hWnd                                                          'Store the hWnd
@@ -2064,17 +2061,17 @@ End Function
 Private Sub Subclass_StopAll()
 'Stop all subclassing
   
-  Dim I As Long
+  Dim i As Long
   
-    I = UBound(sc_aSubData())                                                     'Get the upper bound of the subclass data array
-    Do While I >= 0                                                               'Iterate through each element
-        With sc_aSubData(I)
+    i = UBound(sc_aSubData())                                                     'Get the upper bound of the subclass data array
+    Do While i >= 0                                                               'Iterate through each element
+        With sc_aSubData(i)
             If (.hWnd <> 0) Then                                                  'If not previously Subclass_Stop'd
                 Call Subclass_Stop(.hWnd)                                         'Subclass_Stop
             End If
         End With
     
-        I = I - 1                                                                 'Next element
+        i = i - 1                                                                 'Next element
     Loop
 End Sub
 
