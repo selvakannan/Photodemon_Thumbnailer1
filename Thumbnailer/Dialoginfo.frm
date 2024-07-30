@@ -794,7 +794,6 @@ End Sub
 Private Sub Command12_Click()
       FormOnTop Me, False
 
-Dim fso As FileSystemObject
 
  Dim f As String
     On Error Resume Next
