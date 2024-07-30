@@ -1,5 +1,5 @@
 VERSION 5.00
-Begin VB.Form frmMain 
+Begin VB.Form frm_FindFile 
    BackColor       =   &H00E0E0E0&
    BorderStyle     =   1  'Fixed Single
    Caption         =   "kannagrafix  File Search utility"
@@ -264,7 +264,7 @@ Begin VB.Form frmMain
       End
    End
 End
-Attribute VB_Name = "frmMain"
+Attribute VB_Name = "frm_FindFile"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
@@ -279,14 +279,14 @@ Option Explicit
 Private Sub Command1_Click()
  Dim B As String
 
-        B = PathBrowseDialog(frm_Thumbnailer.hwnd)
+        B = PathBrowseDialog(frm_Thumbnailer.hWnd)
     
-             frmMain.Show
+             frm_FindFile.Show
              Dim c As String
 
         c = InputBox("Enter extension:", "Search", ".jpg")
     
-With frmMain
+With frm_FindFile
 .txtDir.Text = B
 .txtFilter = c
 End With
@@ -294,18 +294,7 @@ End Sub
 
 Private Sub Form_Load()
 
-                                            Dim B As String
 
-        B = PathBrowseDialog(FormMain.hwnd)
-    
-    
-txtDir.Text = B
-
-
-             Dim c As String
-
-        c = InputBox("Enter extension:", "Search", ".jpg")
-txtFilter.Text = c
    ' Call FileSearch(lstResult, txtDir, txtFilter, , , CBool(chkFiles), CBool(chkFolders), _
   '  CBool(chkReadOnly), CBool(chkArchive), CBool(chkHidden), CBool(chkSystem))
 

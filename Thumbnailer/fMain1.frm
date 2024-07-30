@@ -153,19 +153,12 @@ Begin VB.Form frm_Thumbnailer
       Begin VB.Menu mnusysinfo 
          Caption         =   "Detailed System info"
       End
-      Begin VB.Menu mnuhelp22 
-         Caption         =   "Drive Space info"
-      End
       Begin VB.Menu mnuok 
          Caption         =   "SYSTEM Required info"
       End
       Begin VB.Menu mnuhelp 
          Caption         =   "about os"
          Index           =   0
-      End
-      Begin VB.Menu mnuhelp 
-         Caption         =   "HELPLIST"
-         Index           =   1
       End
       Begin VB.Menu mnuhelp 
          Caption         =   "&About"
@@ -201,7 +194,7 @@ Begin VB.Form frm_Thumbnailer
          Index           =   2
       End
       Begin VB.Menu mnuContextThumbnail 
-         Caption         =   "File Information"
+         Caption         =   "File managing.."
          Index           =   3
       End
       Begin VB.Menu mnuContextThumbnail 
@@ -244,10 +237,6 @@ Begin VB.Form frm_Thumbnailer
          Caption         =   "Delete"
          Index           =   13
       End
-      Begin VB.Menu mnuContextThumbnail 
-         Caption         =   "File Operations."
-         Index           =   14
-      End
    End
 End
 Attribute VB_Name = "frm_Thumbnailer"
@@ -272,24 +261,24 @@ Option Explicit
 
 Private Declare Sub InitCommonControls Lib "Comctl32" ()
 Private Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (lpDst As Any, lpSrc As Any, ByVal Length As Long)
-Private Declare Function ShellAbout Lib "shell32.dll" Alias "ShellAboutA" (ByVal hwnd As Long, ByVal szApp As String, ByVal szOtherStuff As String, ByVal hIcon As Long) As Long
+Private Declare Function ShellAbout Lib "shell32.dll" Alias "ShellAboutA" (ByVal hWnd As Long, ByVal szApp As String, ByVal szOtherStuff As String, ByVal hIcon As Long) As Long
 
 Private Declare Function SetParent Lib "user32" (ByVal hWndChild As Long, ByVal hWndNewParent As Long) As Long
-Private Declare Function MoveWindow Lib "user32" (ByVal hwnd As Long, ByVal X As Long, ByVal Y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal bRepaint As Long) As Long
+Private Declare Function MoveWindow Lib "user32" (ByVal hWnd As Long, ByVal x As Long, ByVal y As Long, ByVal nWidth As Long, ByVal nHeight As Long, ByVal bRepaint As Long) As Long
 Private Declare Function LoadImageAsString Lib "user32" Alias "LoadImageA" (ByVal hInst As Long, ByVal lpsz As String, ByVal uType As Long, ByVal cxDesired As Long, ByVal cyDesired As Long, ByVal fuLoad As Long) As Long
 Private Declare Function SetErrorMode Lib "kernel32" (ByVal wMode As Long) As Long
-Private Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hwnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As Long
+Private Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hWnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As Long
 Private Declare Function ShellExecuteEx Lib "shell32" (USEI As SHELLEXECUTEINFO) As Long
 Private Declare Function FileTimeToLocalFileTime Lib "kernel32" (lpFileTime As FILETIME, lpLocalFileTime As FILETIME) As Long
 Private Declare Function FileTimeToSystemTime Lib "kernel32" (lpFileTime As FILETIME, lpSystemTime As SYSTEMTIME) As Long
 Private Declare Function GetDateFormat Lib "kernel32" Alias "GetDateFormatA" (ByVal Locale As Long, ByVal dwFlags As Long, lpDate As SYSTEMTIME, ByVal lpFormat As String, ByVal lpDateStr As String, ByVal cchDate As Long) As Long
 Private Declare Function GetTimeFormat Lib "kernel32" Alias "GetTimeFormatA" (ByVal Locale As Long, ByVal dwFlags As Long, lpTime As SYSTEMTIME, ByVal lpFormat As String, ByVal lpTimeStr As String, ByVal cchTime As Long) As Long
-Private Declare Function SetWindowPos Lib "user32" (ByVal hwnd As Long, ByVal hWndInsertAfter As Long, ByVal X As Long, ByVal Y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
+Private Declare Function SetWindowPos Lib "user32" (ByVal hWnd As Long, ByVal hWndInsertAfter As Long, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
 
 Private Const SW_SHOWNORMAL = 1
 'Dim PicEx As cPictureEx
 
-Private Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
+Private Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal hWnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
  
 Private Const WM_SETICON              As Long = &H80
 Private Const LR_SHARED               As Long = &H8000&
@@ -312,7 +301,7 @@ Private Const SW_NORMAL               As Long = 1
 Private Type SHELLEXECUTEINFO
     cbSize       As Long
     fMask        As Long
-    hwnd         As Long
+    hWnd         As Long
     lpVerb       As String
     lpFile       As String
     lpParameters As String
@@ -324,7 +313,7 @@ Private Type SHELLEXECUTEINFO
     hkeyClass    As Long
     dwHotKey     As Long
     hIcon        As Long
-    HPROCESS     As Long
+    hProcess     As Long
 End Type
 Private Const MAX_PATH                   As Long = 260
 Private Type FILETIME
@@ -383,9 +372,9 @@ Public DIBbpp               As Byte         ' Current color depth
 Private m_FileExt           As String       ' Current file/ext
 'Public DIBSave              As New cDIBSave ' Save object (BMP)  (1, 4, 8, 24 bpp)
 
-Private Declare Function OpenProcess Lib "kernel32" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Long, ByVal dwProcessId As Long) As Long
+Private Declare Function OpenProcess Lib "kernel32" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Long, ByVal dwProcessID As Long) As Long
 Private Declare Function WaitForSingleObject Lib "kernel32" (ByVal hHandle As Long, ByVal dwMilliseconds As Long) As Long
-Private Declare Function GetExitCodeProcess Lib "kernel32" (ByVal HPROCESS As Long, lpExitCode As Long) As Long
+Private Declare Function GetExitCodeProcess Lib "kernel32" (ByVal hProcess As Long, lpExitCode As Long) As Long
 Private Declare Function CloseHandle Lib "kernel32" (ByVal hObject As Long) As Long
 
 
@@ -393,7 +382,7 @@ Private Declare Function CloseHandle Lib "kernel32" (ByVal hObject As Long) As L
 Private Sub cbPath_DblClick()
 Dim a As String
 
-        a = Files.PathBrowseDialog(frm_Thumbnailer.hwnd)
+        a = Files.PathBrowseDialog(frm_Thumbnailer.hWnd)
 
     '-- Path selected
          With ucFolderView
@@ -425,9 +414,9 @@ End Sub
 Private Sub FormOnTop(f_form As Form, i As Boolean)
    
    If i = True Then 'On
-      SetWindowPos f_form.hwnd, -1, 0, 0, 0, 0, &H2 + &H1
+      SetWindowPos f_form.hWnd, -1, 0, 0, 0, 0, &H2 + &H1
    Else      'off
-      SetWindowPos f_form.hwnd, -2, 0, 0, 0, 0, &H2 + &H1
+      SetWindowPos f_form.hWnd, -2, 0, 0, 0, 0, &H2 + &H1
    End If
    
 End Sub
@@ -448,7 +437,7 @@ Private Function JustDoIt1() As Boolean
   sPath = ucFolderView.Path
   sFile = sPath & ucThumbnailView.ItemText(ucThumbnailView.ItemFindState(, [tvFocused]), [tvFileName]) & vbNullChar
 
-     a = PathBrowseDialog(frm_Thumbnailer.hwnd)
+     a = PathBrowseDialog(frm_Thumbnailer.hWnd)
      
     If Len(a) > 0 Then
            'FileCopy FindPath(ucFolderView.Path, sfile), FindPath(a, sfile)
@@ -475,7 +464,7 @@ Dim strExe As String
         m_bLoaded = True
         
         '-- Small icon
-        Call SendMessage(Me.hwnd, WM_SETICON, ICON_SMALL, ByVal LoadImageAsString(App.hInstance, ByVal "SMALL_ICON", IMAGE_ICON, 16, 16, LR_SHARED))
+        Call SendMessage(Me.hWnd, WM_SETICON, ICON_SMALL, ByVal LoadImageAsString(App.hInstance, ByVal "SMALL_ICON", IMAGE_ICON, 16, 16, LR_SHARED))
         
         '-- Initialize database-thumbnail module / Load settings
         Call mThumbnail.InitializeModule
@@ -504,8 +493,6 @@ Dim strExe As String
             Call .AddButton("Add Folders", 2, , , False)
             Call .AddButton(, , , [eSeparator])
             Call .AddButton("Search", 4, , , False)
-            Call .AddButton("pc info", 5, , , False)
-            Call .AddButton("pc info", 6, , , False)
             .Height = .ToolbarHeight
         End With
         '-- Initialize thumbnail view
@@ -616,9 +603,9 @@ Private Sub Form_Resize()
     End If
     
     '-- Status bar size-grip?
-    Call SetParent(ucProgress.hwnd, Me.hwnd)
+    Call SetParent(ucProgress.hWnd, Me.hWnd)
     ucStatusbar.SizeGrip = Not (Me.Windowstate = vbMaximized)
-    Call SetParent(ucProgress.hwnd, ucStatusbar.hwnd)
+    Call SetParent(ucProgress.hWnd, ucStatusbar.hWnd)
     Call ucStatusbar_Resize
     
     '-- Relocate controls
@@ -690,9 +677,6 @@ Private Sub mnuDatabase_Click(Index As Integer)
 
 End Sub
 
-Private Sub mnuhelp22_Click()
-frm_SystemInfo.Show
-End Sub
 
 Private Sub mnuok_Click()
    MsgBox "PhotoDemon thumbnailer unicode version" & App.Major & "." & App.Minor & vbCrLf & vbCrLf & "PhotoDemon- 2024 and system required info:" & vbCrLf & "tested ok upto windows  os 10 version 22h2 os build 19045.4598 " & vbCrLf & "not for windows  os 10 version 22h2 os build 19045.4651"
@@ -779,9 +763,9 @@ Private Sub ucStatusbar_Resize()
   Dim x2 As Long, y2 As Long
     
     '-- Relocate progress bar
-    If (ucStatusbar.hwnd) Then
+    If (ucStatusbar.hWnd) Then
         Call ucStatusbar.GetPanelRect(3, x1, y1, x2, y2)
-        Call MoveWindow(ucProgress.hwnd, x1 + 2, y1 + 2, x2 - x1 - 4, y2 - y1 - 4, 0)
+        Call MoveWindow(ucProgress.hWnd, x1 + 2, y1 + 2, x2 - x1 - 4, y2 - y1 - 4, 0)
     End If
 End Sub
 
@@ -884,16 +868,14 @@ Private Sub mnuHelp_Click(Index As Integer)
      Select Case Index
             
         Case 0 '-- Background color...
-                ShellAbout Me.hwnd, App.Title, "Created by the Anonymous", ByVal 0&
+                ShellAbout Me.hWnd, App.Title, "Created by the Anonymous", ByVal 0&
 
              
          Case 1 '-- Pause/Resume
-            HELPLIST1.Show
-                
-                Case 2 '-- Pause/Resume
-             Call MsgBox("PhotoDemon  v" & App.Major & "." & App.Minor & "." & App.Revision & vbCrLf & vbCrLf & _
+                            Call MsgBox("PhotoDemon  v" & App.Major & "." & App.Minor & "." & App.Revision & vbCrLf & vbCrLf & _
                 "PhotoDemon  - 2024" & Space$(15), _
                 vbInformation, "About")
+ 
 
     End Select
             
@@ -956,7 +938,7 @@ Case 0  'properties
       With USEI
                 .cbSize = Len(USEI)
                 .fMask = SEE_MASK_INVOKEIDLIST Or SEE_MASK_FLAG_NO_UI
-                .hwnd = Me.hwnd
+                .hWnd = Me.hWnd
                 .lpParameters = vbNullChar
                 .lpDirectory = vbNullChar
                 .lpVerb = "properties"
@@ -967,34 +949,47 @@ Case 0  'properties
                 lRet = ShellExecuteEx(USEI)
 '=======================================================================================================================================================
 Case 1 '-- Shell open
-            Call ShellExecute(Me.hwnd, vbNullString, sFile, vbNullString, "C:\", SW_SHOWNORMAL)
+            Call ShellExecute(Me.hWnd, vbNullString, sFile, vbNullString, "C:\", SW_SHOWNORMAL)
 '=======================================================================================================================================================
 Case 2 '-- Shell edit
-            Call ShellExecute(Me.hwnd, "edit", sFile, "", sPath, 1)
+            Call ShellExecute(Me.hWnd, "edit", sFile, "", sPath, 1)
 '=======================================================================================================================================================
 Case 3 '-- File informations
-      Form1.Show
+      frm_info.Show
   Dim srcImagePath As String
   srcImagePath = ucFolderView.Path & ucThumbnailView.ItemText(ucThumbnailView.ItemFindState(, [tvFocused]), [tvFileName]) & vbNullChar
   Dim loadSuccessful As Boolean
   Dim TmpDIB As pdDIB: Set TmpDIB = New pdDIB
-  With Form1
-            Dim s As String
-       Dim r As String
+  With frm_info
 
        Dim sCRC As String
        Set m_CRC = New clsCRC
            m_CRC.Algorithm = Crc32
            sCRC = Hex(m_CRC.CalculateFile(srcImagePath))
-    .Text4.Text = "1.Pragram Name:-" & App.EXEName & vbCrLf & "2.Pragram Description:-" & App.FileDescription & vbCrLf & "3.Pragram Title:-" & App.Title & vbCrLf & "4.Pragram version:- " & Updates.GetPhotoDemonVersion() & vbCrLf & "5.Pragram maker:- " & srcImagePath
-    .Text4.Text = .Text4.Text & vbCrLf & "6.File Folder:- " & App.Path & vbCrLf & "7.program path:- " & sFile
-    .Text4.Text = .Text4.Text & vbCrLf & "8.CRC Checksum:- " & sCRC & vbCrLf & "9.File Name:- " & App.EXEName & ".exe" & vbCrLf & "10.Extension:- *.exe" & vbCrLf
-.Text4.Text = .Text4.Text & "Name         : " & "*.exe" & " " & "*.exe" & vbCrLf & _
-               "Version      : " & "*.exe1" & vbCrLf & _
-               "Build        : " & "*.exe2" & vbCrLf & _
-               "Additional   : " & "*.exe3" & vbCrLf & _
-               "Service Pack : " & "*.exe4" & vbCrLf & _
-               "Suites       : " & "*.exe5"
+           
+.Text1.Text = ucFolderView.Path
+.txtDestination.Text = ucFolderView.Path & ucThumbnailView.ItemText(ucThumbnailView.ItemFindState(, [tvFocused]), [tvFileName]) & vbNullChar
+.File1.Path = ucFolderView.Path
+.Dir1.Path = ucFolderView.Path
+
+    
+    .Text4.Text = "1.Pragram Name:-" & App.EXEName & vbCrLf & _
+                  "2.Pragram Description:-" & App.FileDescription & vbCrLf & _
+                  "3.Pragram Title:-" & App.Title & vbCrLf & _
+                  "4.Pragram version:- " & Updates.GetPhotoDemonVersion() & vbCrLf & _
+                  "5.Pragram maker:- " & srcImagePath
+      .Text4.Text = .Text4.Text & vbCrLf & "6.File Folder:- " & App.Path & vbCrLf & _
+                  "7.program path:- " & sFile
+      .Text4.Text = .Text4.Text & vbCrLf & "8.CRC Checksum:- " & sCRC & vbCrLf & _
+                  "9.File Name:- " & App.EXEName & ".exe" & vbCrLf & _
+                  "10.Extension:- *.exe" & vbCrLf & _
+                  "11.Name         : " & "*.exe" & " " & "*.exe" & vbCrLf & _
+                  "12.Version      : " & "*.exe1" & vbCrLf & _
+                  "13.Build        : " & "*.exe2" & vbCrLf & _
+                  "14.Additional   : " & "*.exe3" & vbCrLf & _
+                  "15.Service Pack : " & "*.exe4" & vbCrLf & _
+                  "16.Suites       : " & "*.exe5"
+              
 
   
   loadSuccessful = False
@@ -1034,7 +1029,7 @@ Case 5 '-- explore this folder
             Shell shellCommand, vbNormalFocus
 '=======================================================================================================================================================
 Case 6  '"print"
-                   Call ShellExecute(Me.hwnd, "print", sFile, "", App.Path, 1)
+                   Call ShellExecute(Me.hWnd, "print", sFile, "", App.Path, 1)
 
 Case 7 'openwith
 Dim openDialog As pdOpenSaveDialog
@@ -1049,8 +1044,8 @@ Dim openDialog As pdOpenSaveDialog
         Dim cdTitle As String
         cdTitle = g_Language.TranslateMessage("Load a program to edit this image")
                 
-        If openDialog.GetOpenFileName(spfile, vbNullString, True, False, cdFilter, 1, "C:\", cdTitle, , frm_Thumbnailer.hwnd) Then
-ShellExecute Me.hwnd, "open", spfile, Chr$(34) & sFile & Chr$(34), vbNullString, SW_SHOWNORMAL
+        If openDialog.GetOpenFileName(spfile, vbNullString, True, False, cdFilter, 1, "C:\", cdTitle, , frm_Thumbnailer.hWnd) Then
+ShellExecute Me.hWnd, "open", spfile, Chr$(34) & sFile & Chr$(34), vbNullString, SW_SHOWNORMAL
 End If
 
 '=======================================================================================================================================================
@@ -1079,7 +1074,7 @@ Case 10 '-- browse path
         Screen.MousePointer = vbArrowHourglass
                             Dim a As String
 
-        a = PathBrowseDialog(frm_Thumbnailer.hwnd)
+        a = PathBrowseDialog(frm_Thumbnailer.hWnd)
 
                    With ucFolderView
             If (.Path <> cbPath.Text) Then
@@ -1183,26 +1178,6 @@ e:
         ' Call mThumbnail.UpdateFolder(frm_Thumbnailer.ucFolderView.Path)
 End If
 'End If
-Case 14 ' File Operations
-frmSource.Show
-
-  srcImagePath = ucFolderView.Path & ucThumbnailView.ItemText(ucThumbnailView.ItemFindState(, [tvFocused]), [tvFileName]) & vbNullChar
- Set TmpDIB = New pdDIB
-  With frmSource
-  .Text1.Text = ucFolderView.Path
-  loadSuccessful = False
-        If (LenB(srcImagePath) <> 0) Then loadSuccessful = Loading.QuickLoadImageToDIB(srcImagePath, TmpDIB, False, False)
-                'If the image load failed, display a placeholder message; otherwise, render the image to the picture box
-        If loadSuccessful Then
-            .ucplayer.CopyDIB TmpDIB, True, True
-        Else
-            .ucplayer.PaintText g_Language.TranslateMessage("previews disabled"), 10!, False, True
-        End If
-    Screen.MousePointer = vbDefault
-
-.txtDestination.Text = ucFolderView.Path & ucThumbnailView.ItemText(ucThumbnailView.ItemFindState(, [tvFocused]), [tvFileName]) & vbNullChar
-.File1.Path = ucFolderView.Path
-End With
     End Select
 
 End Sub
@@ -1249,9 +1224,9 @@ Private Function pvCorrectExt(sFileName As String)
         sFileName = sFileName & Right$(m_FileExt, 4)
     End If
 End Function
-Public Function ShellFile(hwnd As Long, strOperation As String, ByVal File As String, WindowStyle As VbAppWinStyle) As Long
+Public Function ShellFile(hWnd As Long, strOperation As String, ByVal File As String, WindowStyle As VbAppWinStyle) As Long
 '"Open, Print, Explore, Find, Edit, Play, 0&"
-    ShellFile = ShellExecute(hwnd, strOperation, File, vbNullString, App.Path, WindowStyle)
+    ShellFile = ShellExecute(hWnd, strOperation, File, vbNullString, App.Path, WindowStyle)
 End Function
 Function fWait1(ByVal lProgID As Long) As Long
     Dim lExitCode As Long, hdlProg As Long
@@ -1286,7 +1261,7 @@ Private Sub ucToolbar_ButtonClick(ByVal Button As Long)
         Screen.MousePointer = vbArrowHourglass
                             Dim a As String
 
-        a = PathBrowseDialog(frm_Thumbnailer.hwnd)
+        a = PathBrowseDialog(frm_Thumbnailer.hWnd)
 
                    With ucFolderView
             If (.Path <> cbPath.Text) Then
@@ -1323,24 +1298,14 @@ Private Sub ucToolbar_ButtonClick(ByVal Button As Long)
             ShowPDDialog vbModal, frm_AddDir
       
         Case 5  '-- Refresh
-           frmMain.Show
-       
-        Case 6  '-- View
-      Dialoginfo.Show
-      
-        Case 7  '-- Full screen
-            frm_SystemInfo.Show
-
-      
-        Case 8 '-- Database
-            MsgBox "dd"
+           frm_FindFile.Show
     End Select
 End Sub
 
-Private Sub ucToolbar_ButtonDropDown(ByVal Button As Long, ByVal X As Long, ByVal Y As Long)
+Private Sub ucToolbar_ButtonDropDown(ByVal Button As Long, ByVal x As Long, ByVal y As Long)
     
     '-- Drop-down menu (view mode)
-    Call PopupMenu(mnuViewModeTop, , X, Y)
+    Call PopupMenu(mnuViewModeTop, , x, y)
 End Sub
 
 
@@ -1355,7 +1320,7 @@ Private Sub ucFolderView_ChangeBefore(ByVal NewPath As String, Cancel As Boolean
             
         '-- Invalid path
         Call MsgBox("The specified path is invalid or does not exist.")
-        Call SendMessage(cbPath.hwnd, CB_SETCURSEL, 0, ByVal 0)
+        Call SendMessage(cbPath.hWnd, CB_SETCURSEL, 0, ByVal 0)
         Cancel = True
         
       Else
@@ -1411,7 +1376,7 @@ End Sub
 Private Sub cbPath_Click()
     
     '-- Path selected
-    If (SendMessage(cbPath.hwnd, CB_GETDROPPEDSTATE, 0, ByVal 0) = 0) Then
+    If (SendMessage(cbPath.hWnd, CB_GETDROPPEDSTATE, 0, ByVal 0) = 0) Then
         
         With ucFolderView
             If (.Path <> cbPath.Text) Then
@@ -1431,16 +1396,16 @@ Private Sub cbPath_KeyDown(KeyCode As Integer, Shift As Integer)
         Case vbKeyReturn
             
             '-- Check combo's list state (visible)
-            If (SendMessage(cbPath.hwnd, CB_GETDROPPEDSTATE, 0, ByVal 0) <> 0) Then
+            If (SendMessage(cbPath.hWnd, CB_GETDROPPEDSTATE, 0, ByVal 0) <> 0) Then
                 '-- Get current list box selected (hot) item
-                lIdx = SendMessage(cbPath.hwnd, CB_GETCURSEL, 0, ByVal 0)
+                lIdx = SendMessage(cbPath.hWnd, CB_GETCURSEL, 0, ByVal 0)
                 If (lIdx <> CB_ERR) Then
-                    Call SendMessage(cbPath.hwnd, CB_SETCURSEL, lIdx, ByVal 0)
+                    Call SendMessage(cbPath.hWnd, CB_SETCURSEL, lIdx, ByVal 0)
                 End If
             End If
             
             '-- Hide combo's list and force combo click
-            Call SendMessage(cbPath.hwnd, CB_SHOWDROPDOWN, 0, ByVal 0)
+            Call SendMessage(cbPath.hWnd, CB_SHOWDROPDOWN, 0, ByVal 0)
             Call cbPath_Click
       
         '-- Avoids navigation when list hidden (also avoids mouse-wheel navigation).
@@ -1448,7 +1413,7 @@ Private Sub cbPath_KeyDown(KeyCode As Integer, Shift As Integer)
             
             '-- Preserve manual drop-down
             If (Shift <> vbAltMask) Then
-                If (SendMessage(cbPath.hwnd, CB_GETDROPPEDSTATE, 0, ByVal 0) = 0) Then
+                If (SendMessage(cbPath.hWnd, CB_GETDROPPEDSTATE, 0, ByVal 0) = 0) Then
                     KeyCode = 0
                 End If
             End If
@@ -1527,15 +1492,12 @@ Dim SEXT1 As String
                         sPath = ucFolderView.Path & ucThumbnailView.ItemText(ucThumbnailView.ItemFindState(, [tvFocused]), [tvFileName]) & vbNullChar
                         sTitle = Files.FileGetName(sPath, True)
                         SEXT1 = Files.FileGetExtension(sPath)
-                       
-                        If Files.FileGetExtension(sPath) <> "pdi" Then
+           If Files.FileGetExtension(sPath) <> "pdi" Then
                         Loading.LoadFileAsNewImage1 sPath, sTitle, False
 
                         On Error GoTo GH
                     
                      End If
-      
-
 GH:
 Loading.LoadFileAsNewImage sPath, sTitle, False
 Exit Sub
@@ -1691,7 +1653,7 @@ Public Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
                     
                 '-- Restore combo edit text
                 Case vbKeyEscape
-                    Call SendMessage(cbPath.hwnd, CB_SETCURSEL, 0, ByVal 0)
+                    Call SendMessage(cbPath.hWnd, CB_SETCURSEL, 0, ByVal 0)
                     KeyCode = 0
                     
                 '-- Avoid combo drop-down
@@ -1800,7 +1762,7 @@ Private Sub pvChangeDropDownListHeight(oCombo As ComboBox, ByVal lHeight As Long
     
     With oCombo
         '-- Drop down list height
-        Call MoveWindow(.hwnd, .Left \ Screen.TwipsPerPixelX, .Top \ Screen.TwipsPerPixelY, .Width \ Screen.TwipsPerPixelX, lHeight, 0)
+        Call MoveWindow(.hWnd, .Left \ Screen.TwipsPerPixelX, .Top \ Screen.TwipsPerPixelY, .Width \ Screen.TwipsPerPixelX, lHeight, 0)
     End With
 End Sub
 
@@ -1815,21 +1777,4 @@ Private Function IsInIDE() As Boolean
    m_bInIDE = True
    IsInIDE = m_bInIDE
 End Function
-Private Sub ucToolBar_Click(ByVal vButton_Index As Long)
-    Select Case vButton_Index
-        Case 0: MsgBox "0"
-        Case 1: MsgBox "1"
-        Case 2: MsgBox "2"
-        Case 3: MsgBox "3"
-        Case 4: MsgBox "4"
-        Case 5: MsgBox "5"
-        Case 6: MsgBox "6"
-        Case 7: MsgBox "7"
-        Case 8: MsgBox "8"
-        Case 9: MsgBox "9"
-        Case 10: MsgBox "10"
-        Case 11: MsgBox "11"
-
-    End Select
-End Sub
 

@@ -85,7 +85,7 @@ Private Declare Function GetProcAddress Lib "kernel32.dll" (ByVal hModule As Lon
 
 '//
 
-Public Const IMAGETYPES_MASK As String = "|PNG|JPG|JPEG|BMP|GIF|WMF|EMF|ICO|TIF|TIFF|PDI|PCX|PCD|ORA|MBM|KOA|HDP|JXR|JLS|HGT|HEIF|HEIC|G3|DNG|CBZ|AVIF|PFM|PGM|PIC|PICT|APNG|PNM|PPM|PSP|QOI|RAW|RGB|BW|WEBP|XPM|JNG|KOALA|LBM|IFF|LBM|MNG|PBM|PBMRAW|PPMRAW|RAS|TARGA|WBMP|CUT|XBM|DDS|FAXG3|SGI|EXR|J2K|HDR|PDF|PSD|TGA|XCF|SVG|JP2|"
+Public Const IMAGETYPES_MASK As String = "|PNG|JPG|JPEG|BMP|GIF|WMF|EMF|ICO|TIF|TIFF|PDI|PCX|PCD|ORA|MBM|KOA|HDP|JXR|JLS|HGT|HEIF|HEIC|G3|DNG|CBZ|AVIF|PFM|PGM|PIC|PICT|APNG|PNM|PPM|PSP|QOI|RAW|RGB|BW|WEBP|XPM|JNG|KOALA|LBM|IFF|LBM|MNG|PBM|PBMRAW|PPMRAW|RAS|TARGA|WBMP|CUT|XBM|DDS|FAXG3|SGI|EXR|J2K|HDR|PDF|PSD|TGA|XCF|SVG|JP2|TXT|INI|"
 
 
 Public Type DATABASE_INFO
@@ -102,7 +102,7 @@ Private Type FILE_INFO
     Filelastaccesstime As String
     Filelastwritetime As String
     Filecrc As String
-    FilePath As String
+    filepath As String
     Filewidth As String
     Fileheight As String
     fileExtension As String
@@ -162,7 +162,7 @@ Public Sub UpdateFolder(ByVal sFolder As String)
             '-- Add items
             For lItem = 0 To UBound(uFile())
             
-               Call .ItemAdd(lItem, uFile(lItem).Filename, uFile(lItem).FileSize, uFile(lItem).FileDate, uFile(lItem).Filecreationdate, uFile(lItem).Filelastaccesstime, uFile(lItem).Filelastwritetime, uFile(lItem).Filecrc, uFile(lItem).FilePath, uFile(lItem).Filewidth)
+               Call .ItemAdd(lItem, uFile(lItem).Filename, uFile(lItem).FileSize, uFile(lItem).FileDate, uFile(lItem).Filecreationdate, uFile(lItem).Filelastaccesstime, uFile(lItem).Filelastwritetime, uFile(lItem).Filecrc, uFile(lItem).filepath, uFile(lItem).Filewidth)
             Next lItem
             
             '-- Enable redraw and ensure visible first item
@@ -260,7 +260,8 @@ loadSuccessful = False
     Set TmpDIB = Nothing
 dstFilename = pngpath
 '======================================================================================================================================================
-
+         Case "TXT", "INI"
+Exit Sub
         Case Else
        MsgBox sPath & "IMAGE FORMAT NOT SUPPORTED NOW"
 
@@ -282,10 +283,10 @@ dstFilename = pngpath
         Call oDIBThumb.Create(bfW, bfH, [16_bpp])
 
         '-- Prepare target surface
-        Call mGDIplus.GdipCreateFromHDC(oDIBThumb.hDc, hGraphics)
+        Call mGDIplus.GdipCreateFromHDC(oDIBThumb.hDC, hGraphics)
         
         '-- Tile 'transparent' layer and render thumbnail
-        Call m_oTile.Tile(oDIBThumb.hDc, 0, 0, bfW, bfH)
+        Call m_oTile.Tile(oDIBThumb.hDC, 0, 0, bfW, bfH)
         Call mGDIplus.GdipDrawImageRectI(hGraphics, hImage, 0, 0, bfW, bfH)
         
         '-- Clean up
@@ -367,7 +368,7 @@ Private Function pvGetFiles(ByVal sMask As String, uFile() As FILE_INFO) As Bool
                     .Filelastaccesstime = pvGetFileDateTimeStr(uWFD.ftLastAccessTime)
                     .Filelastwritetime = pvGetFileDateTimeStr(uWFD.ftLastWriteTime)
                     .Filecrc = strHex
-                    .FilePath = m_sFolder & pvStripNulls(uWFD.cFileName)
+                    .filepath = m_sFolder & pvStripNulls(uWFD.cFileName)
                                     End With
                 lCount = lCount + 1
                 
